@@ -1,7 +1,7 @@
 # `mrb-src`
 
 [![Join the discussion](https://img.shields.io/badge/slack-chat-blue.svg)](https://join.slack.com/t/oxidize-rb/shared_invite/zt-16zv5tqte-Vi7WfzxCesdo2TqF_RYBCw)
-[![.github/workflows/ci.yml](https://github.com/oxidize-rb/mrb/actions/workflows/ci.yml/badge.svg)](https://github.com/oxidize-rb/mrb/actions/workflows/ci.yml)
+[![CI](https://github.com/oxidize-rb/mrb/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/oxidize-rb/mrb/actions/workflows/ci.yml)
 
 A rust crate which compiles [`mruby`](https://mruby.org/) source code using [Cargo](https://crates.io/). Meant to be used with [`mrb-sys`](./crates/mrb-sys/readme.md).
 
