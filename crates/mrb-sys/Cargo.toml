@@ -1,0 +1,23 @@
+[package]
+name = "mrb-sys"
+version = "0.1.0"
+edition = "2018"
+build = "build/main.rs"
+links = "mruby"
+readme = "readme.md"
+categories = ["external-ffi-bindings"]
+description = "Rust bindings for mruby"
+documentation = "https://docs.rs/mrb-sys/"
+homepage = "https://github.com/oxidize-rb/mrb"
+license = "MIT OR Apache-2.0"
+
+[lib]
+doctest = false
+
+[features]
+default = ["vendored"]
+vendored = ["mrb-src"]
+
+[build-dependencies]
+bindgen = "0.60.1"
+mrb-src = { path = "../mrb-src", optional = true }
