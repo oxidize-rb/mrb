@@ -175,16 +175,20 @@ impl Build {
 
     fn download_mrb_src(&self, out_dir: &Path) -> Result<PathBuf, Box<dyn Error>> {
         eprintln!("Downloading mruby to {}", out_dir.display());
+
         let tmp_dir = out_dir.join("tmp");
         std::fs::create_dir_all(&tmp_dir)?;
+
         let url = format!(
             "https://github.com/mruby/mruby/archive/refs/tags/{}.tar.gz",
             self.mruby_version
         );
         let dest = tmp_dir.join("src.tar.gz");
-        let mut resp = reqwest::blocking::get(url)?;
+        let resp = ureq::get(&url).call()?;
         let mut out = std::fs::File::create(&dest)?;
-        resp.copy_to(&mut out)?;
+
+        std::io::copy(&mut resp.into_reader(), &mut out)?;
+
         Ok(dest)
     }
 

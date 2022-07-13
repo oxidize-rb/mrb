@@ -6,12 +6,25 @@ name: CI
 jobs:
   test:
     name: Test
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        sys:
+          - os: ubuntu-latest
+            rust_toolchain: "1.51"
+          - os: ubuntu-latest
+            rust_toolchain: stable
+          - os: macos-latest
+            rust_toolchain: stable
+          - os: ubuntu-latest
+            rust_toolchain: beta
+          # - os: windows-2022
+          #   rust_toolchain: stable-x86_64-pc-windows-gnu
+    runs-on: ${{ matrix.sys.os }}
     steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
-          toolchain: stable
+          toolchain: ${{ matrix.sys.rust_toolchain }}
       - uses: Swatinem/rust-cache@v1
       - uses: actions-rs/cargo@v1
         with:

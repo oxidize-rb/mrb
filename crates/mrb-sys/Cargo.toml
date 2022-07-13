@@ -19,5 +19,5 @@ default = ["vendored"]
 vendored = ["mrb-src"]
 
 [build-dependencies]
-bindgen = "0.60.1"
-mrb-src = { path = "../mrb-src", optional = true }
+bindgen = { version = "0.60", default-features = false, features = ["runtime"] }
+mrb-src = { version = "0.1", path = "../mrb-src", optional = true }
