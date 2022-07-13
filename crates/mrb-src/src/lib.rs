@@ -69,9 +69,7 @@ impl Build {
     pub fn build(&mut self) -> Result<PathBuf, Box<dyn Error>> {
         self.setup()?;
 
-        let out_dir = Path::new(&std::env::var("OUT_DIR")?.to_string())
-            .join(self.mruby_version.to_string())
-            .to_path_buf();
+        let out_dir = Path::new(&std::env::var("OUT_DIR")?).join(&self.mruby_version);
         let mrb_tarball = self.download_mrb_src(&out_dir)?;
         let mrb_dir = self.unpack_mrb_src(&mrb_tarball, &out_dir)?;
         let build_config = self.generate_build_config(&out_dir)?;
@@ -98,7 +96,7 @@ impl Build {
     }
 
     fn teardown(&self, out_dir: &Path) -> Result<(), Box<dyn Error>> {
-        if let Some(_) = std::env::var_os("MRB_SRC_DEBUG_BUILD") {
+        if std::env::var_os("MRB_SRC_DEBUG_BUILD").is_some() {
             eprintln!("MRB_SRC_DEBUG_BUILD is set, exiting");
             std::process::exit(1);
         }
@@ -149,8 +147,8 @@ impl Build {
 
     fn unpack_mrb_src(
         &self,
-        mrb_tarball: &PathBuf,
-        out_dir: &PathBuf,
+        mrb_tarball: &Path,
+        out_dir: &Path,
     ) -> Result<PathBuf, Box<dyn Error>> {
         eprintln!("Unpacking {}", mrb_tarball.display());
 
@@ -159,7 +157,8 @@ impl Build {
         let dest_dir = out_dir.join("src");
 
         match std::fs::remove_dir_all(&dest_dir) {
-            _ => {}
+            Err(_) => eprintln!("Could not clean up {}", dest_dir.display()),
+            _ => println!("Cleaned up {}", dest_dir.display()),
         };
 
         std::fs::create_dir_all(&dest_dir)?;
@@ -174,7 +173,7 @@ impl Build {
         Ok(dest_dir)
     }
 
-    fn download_mrb_src(&self, out_dir: &PathBuf) -> Result<PathBuf, Box<dyn Error>> {
+    fn download_mrb_src(&self, out_dir: &Path) -> Result<PathBuf, Box<dyn Error>> {
         eprintln!("Downloading mruby to {}", out_dir.display());
         let tmp_dir = out_dir.join("tmp");
         std::fs::create_dir_all(&tmp_dir)?;
@@ -189,15 +188,13 @@ impl Build {
         Ok(dest)
     }
 
-    fn generate_build_config(&self, out_dir: &PathBuf) -> Result<PathBuf, Box<dyn Error>> {
+    fn generate_build_config(&self, out_dir: &Path) -> Result<PathBuf, Box<dyn Error>> {
         let build = cc::Build::new();
         let try_compiler = build.try_get_compiler();
 
         let (compiler, toolchain) = match try_compiler {
             Ok(ref tool) => {
-                if tool.is_like_clang() {
-                    (Some(tool), "clang")
-                } else if std::env::var("TARGET")?.contains("apple-darwin") {
+                if tool.is_like_clang() || std::env::var("TARGET")?.contains("apple-darwin") {
                     (Some(tool), "clang")
                 } else {
                     (Some(tool), "gcc")

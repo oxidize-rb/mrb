@@ -1,3 +1,4 @@
+use std::fmt::Write;
 use std::{error::Error, path::Path};
 
 /// Transpiles mruby/presym/table.h to Rust.
@@ -11,9 +12,9 @@ pub fn transpile(table_h: &Path) -> Result<String, Box<dyn Error>> {
     let table_h_string = std::fs::read_to_string(&table_h)?;
 
     for line in table_h_string.lines() {
-        if in_presym_length_table && line.starts_with("}") {
+        if in_presym_length_table && line.starts_with('}') {
             in_presym_length_table = false;
-        } else if in_presym_name_table && line.starts_with("}") {
+        } else if in_presym_name_table && line.starts_with('}') {
             in_presym_name_table = false;
         }
 
@@ -35,22 +36,24 @@ pub fn transpile(table_h: &Path) -> Result<String, Box<dyn Error>> {
     }
 
     table_rs_output.push_str("/// Presym table length entries.\n");
-    table_rs_output.push_str(&format!(
-        "pub const presym_length_table: [u16; {}] = [\n",
-        presym_length_table_entries.len(),
-    ));
+    write!(
+        table_rs_output,
+        "pub const presym_length_table: [u16; {}] = [",
+        presym_length_table_entries.len()
+    )?;
     for line in presym_length_table_entries {
-        table_rs_output.push_str(&format!("  {}\n", line));
+        writeln!(table_rs_output, "{}", line)?;
     }
     table_rs_output.push_str("];\n");
 
     table_rs_output.push_str("/// Presym name table entries.\n");
-    table_rs_output.push_str(&format!(
-        "pub const presym_name_table: [&'static str; {}] = [\n",
+    writeln!(
+        table_rs_output,
+        "pub const presym_name_table: [&str; {}] = [",
         presym_name_table_entries.len(),
-    ));
+    )?;
     for line in presym_name_table_entries {
-        table_rs_output.push_str(&format!("  {}\n", line));
+        writeln!(table_rs_output, "  {}", line)?;
     }
     table_rs_output.push_str("];\n");
 

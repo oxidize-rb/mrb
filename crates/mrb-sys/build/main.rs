@@ -9,7 +9,7 @@ use std::{
 fn main() -> Result<(), Box<dyn Error>> {
     setup()?;
 
-    let out_dir = Path::new(&std::env::var("OUT_DIR")?.to_string()).to_path_buf();
+    let out_dir = Path::new(&std::env::var("OUT_DIR")?).to_path_buf();
     let wrapper_h = write_wrapper_h_file(&out_dir)?;
     println!("cargo:rustc-link-lib=static=mruby");
     generate_bindings(&out_dir, &wrapper_h)?;
@@ -32,7 +32,7 @@ fn generate_bindings(out_dir: &Path, wrapper_h: &Path) -> Result<(), Box<dyn Err
         .parse_callbacks(Box::new(bindgen::CargoCallbacks));
 
     let bindings = if let Some(vendored) = maybe_build() {
-        transpile_presym(&out_dir, &vendored)?;
+        transpile_presym(out_dir, &vendored)?;
 
         build
             .clang_arg(format!("-I{}", vendored.join("target/include").display()))
@@ -98,7 +98,7 @@ fn write_wrapper_h_file(out_dir: &Path) -> Result<PathBuf, Box<dyn Error>> {
 }
 
 fn teardown(_out_dir: &Path) -> Result<(), Box<dyn Error>> {
-    if let Some(_) = std::env::var_os("MRB_SYS_DEBUG_BUILD") {
+    if std::env::var_os("MRB_SYS_DEBUG_BUILD").is_some() {
         eprintln!("MRB_SYS_DEBUG_BUILD is set, exiting");
         std::process::exit(1);
     }
