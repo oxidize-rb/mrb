@@ -26,7 +26,7 @@ jobs:
         with:
           toolchain: ${{ matrix.sys.rust_toolchain }}
           override: true
-      - uses: Swatinem/rust-cache@v1
+      - uses: Swatinem/rust-cache@v2
       - uses: actions-rs/cargo@v1
         with:
           command: test
@@ -39,7 +39,7 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
-      - uses: Swatinem/rust-cache@v1
+      - uses: Swatinem/rust-cache@v2
       - run: cargo fmt --check
       - run: rustup component add clippy
       - uses: actions-rs/clippy-check@v1
